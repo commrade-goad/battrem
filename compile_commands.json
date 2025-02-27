@@ -1,0 +1,33 @@
+[
+  {
+    "arguments": [
+      "/sbin/cc",
+      "-Ibattrem.p",
+      "-I.",
+      "-I..",
+      "-I/usr/include/gdk-pixbuf-2.0",
+      "-I/usr/include/libpng16",
+      "-I/usr/include/libmount",
+      "-I/usr/include/blkid",
+      "-I/usr/include/glib-2.0",
+      "-I/usr/lib/glib-2.0/include",
+      "-I/usr/include/sysprof-6",
+      "-fdiagnostics-color=always",
+      "-D_FILE_OFFSET_BITS=64",
+      "-Wall",
+      "-Winvalid-pch",
+      "-Wextra",
+      "-Wpedantic",
+      "-O0",
+      "-g",
+      "-pthread",
+      "-c",
+      "-o",
+      "battrem.p/src_main.c.o",
+      "../src/main.c"
+    ],
+    "directory": "/home/fernando/Programming/C/battrem/build",
+    "file": "/home/fernando/Programming/C/battrem/src/main.c",
+    "output": "/home/fernando/Programming/C/battrem/build/battrem.p/src_main.c.o"
+  }
+]
