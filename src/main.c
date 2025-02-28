@@ -1,10 +1,4 @@
-/* TODO:
-    - add sound support using sdl
-    - make it more modular with couple of .c and .h
-*/
-
 #include <assert.h>
-#include <libnotify/notification.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -35,6 +29,8 @@
 
 #define LOCK_FILE_PATH "/tmp/battrem.lock"
 
+#define NOTIFICATION_TIMEOUT 5000
+
 bool running = true;
 pthread_t loop_thread;
 
@@ -64,6 +60,7 @@ void get_batt_status(char *buffer, size_t buf_size) {
 void send_notif(NotifyNotification *notif, char *header, char *body) {
     notif = notify_notification_new(header, body, NULL);
     notify_notification_set_urgency(notif, NOTIFY_URGENCY_CRITICAL);
+    notify_notification_set_timeout(notif, NOTIFICATION_TIMEOUT);
     notify_notification_show(notif, NULL);
 }
 
