@@ -34,6 +34,18 @@
 bool running = true;
 pthread_t loop_thread;
 
+// -- forward declare -- 
+void delete_lock(void);
+void read_file(char *fpath, char *buffer, size_t buff_size);
+uint8_t get_batt_level(void);
+void get_batt_status(char *buffer, size_t buf_size);
+void send_notif(NotifyNotification *notif, char *header, char *body);
+void *main_loop(void *notif_ptr);
+void handle_sigint_n_sigterm(int sig);
+void handle_sigalrm(int _);
+bool check_lock(void);
+void create_lock(void);
+
 void read_file(char *fpath, char *buffer, size_t buff_size) {
     FILE *f = fopen(fpath, "r");
     if (f == NULL) return;
@@ -66,9 +78,11 @@ void send_notif(NotifyNotification *notif, char *header, char *body) {
 
 void *main_loop(void *notif_ptr) {
     NotifyNotification *notif = (NotifyNotification *) notif_ptr;
+    uint8_t level;
+    char status[BATT_STATUS_BUFFER_SIZE] = {0};
     while (running) {
-        uint8_t level = get_batt_level();
-        char status[BATT_STATUS_BUFFER_SIZE] = {0};
+        memset(status, '\0', BATT_STATUS_BUFFER_SIZE);
+        level = get_batt_level();
         get_batt_status(status, BATT_STATUS_BUFFER_SIZE);
 
         // handle discharging
@@ -85,26 +99,35 @@ void *main_loop(void *notif_ptr) {
                 );
                 send_notif(notif, head_buf, body);
                 sleep(LONG_SLEEP_TIME);
+                continue;
             }
-            else if (level <= BATT_PREWARNING)
+            else if (level <= BATT_PREWARNING) {
                 sleep(FAST_SLEEP_TIME);
-            else 
+                continue;
+            }
+            else  {
                 sleep(NORMAL_SLEEP_TIME);
+                continue;
+            }
         }
         // handle charging
         else if (strncmp(CHARGING, status, strlen(status))) {
             sleep(LONG_SLEEP_TIME);
+            continue;
         }
         // handle notcharging
         else if (strncmp(NOTCHARGING, status, strlen(status))) {
             sleep(NORMAL_SLEEP_TIME);
+            continue;
         }
         // handle full
         else if (strncmp(FULL, status, strlen(status))) {
             sleep(LONG_SLEEP_TIME);
+            continue;
         }
         else {
             sleep(NORMAL_SLEEP_TIME);
+            continue;
         }
 
     }
@@ -115,6 +138,7 @@ void handle_sigint_n_sigterm(int sig) {
     fprintf(stderr, "\nINFO: get signal `%d` terminating...\n", sig);
     running = false;
     pthread_kill(loop_thread, SIGALRM);
+    delete_lock();
 }
 
 void handle_sigalrm(int _) {
@@ -155,6 +179,12 @@ void create_lock(void) {
     FILE *f = fopen(LOCK_FILE_PATH, "w");
     fprintf(f, "%d\n", pid);
     fclose(f);
+}
+
+void delete_lock(void) {
+    if (remove(LOCK_FILE_PATH) != 0) {
+        fprintf(stderr, "ERROR: Failed to delete the lock file.");
+    }
 }
 
 int main(void) {
