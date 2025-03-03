@@ -86,7 +86,8 @@ void *main_loop(void *notif_ptr) {
         get_batt_status(status, BATT_STATUS_BUFFER_SIZE);
 
         // handle discharging
-        if (strncmp(DISCHARGING, status, strlen(status))) {
+        if (strncmp(DISCHARGING, status, strlen(status)) == 0) {
+            printf("status is %s\n", status);
             if (level <= BATT_WARNING) {
                 char head_buf[24] = {0};
                 char *head_fmt_string = "%u%% Remaining";
@@ -99,37 +100,29 @@ void *main_loop(void *notif_ptr) {
                 );
                 send_notif(notif, head_buf, body);
                 sleep(LONG_SLEEP_TIME);
-                continue;
             }
             else if (level <= BATT_PREWARNING) {
                 sleep(FAST_SLEEP_TIME);
-                continue;
             }
             else  {
                 sleep(NORMAL_SLEEP_TIME);
-                continue;
             }
         }
         // handle charging
-        else if (strncmp(CHARGING, status, strlen(status))) {
+        else if (strncmp(CHARGING, status, strlen(status)) == 0) {
             sleep(LONG_SLEEP_TIME);
-            continue;
         }
         // handle notcharging
-        else if (strncmp(NOTCHARGING, status, strlen(status))) {
+        else if (strncmp(NOTCHARGING, status, strlen(status)) == 0) {
             sleep(NORMAL_SLEEP_TIME);
-            continue;
         }
         // handle full
-        else if (strncmp(FULL, status, strlen(status))) {
+        else if (strncmp(FULL, status, strlen(status)) == 0) {
             sleep(LONG_SLEEP_TIME);
-            continue;
         }
         else {
             sleep(NORMAL_SLEEP_TIME);
-            continue;
         }
-
     }
     return NULL;
 }
@@ -142,6 +135,7 @@ void handle_sigint_n_sigterm(int sig) {
 }
 
 void handle_sigalrm(int _) {
+    (void) _;
     fprintf(stderr,
             "INFO: get signal SIGALRM exiting the"
             "worker thread...\n"
