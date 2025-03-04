@@ -67,6 +67,7 @@ void get_batt_status(char *buffer, size_t buf_size) {
     size_t strsize = strlen(buf) + 1;
     assert(strsize <= buf_size);
     memcpy(buffer, buf, strsize);
+    buffer[strlen(buffer) - 1] = '\0';
 }
 
 void send_notif(NotifyNotification *notif, char *header, char *body) {
@@ -87,7 +88,6 @@ void *main_loop(void *notif_ptr) {
 
         // handle discharging
         if (strncmp(DISCHARGING, status, strlen(status)) == 0) {
-            printf("status is %s\n", status);
             if (level <= BATT_WARNING) {
                 char head_buf[24] = {0};
                 char *head_fmt_string = "%u%% Remaining";
