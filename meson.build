@@ -10,10 +10,11 @@ project('battrem', 'c',
 
 pname = 'battrem'
 libnotify_dep = dependency('libnotify', method : 'pkg-config')
+thread_dep = dependency('threads')
 
 executable(
   pname,
   'src/main.c',
-  dependencies : [libnotify_dep],
+  dependencies : [libnotify_dep, thread_dep],
   install : true
 )

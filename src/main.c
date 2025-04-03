@@ -34,7 +34,7 @@
 bool running = true;
 pthread_t loop_thread;
 
-// -- forward declare -- 
+// -- forward declare --
 void delete_lock(void);
 void read_file(char *fpath, char *buffer, size_t buff_size);
 uint8_t get_batt_level(void);
